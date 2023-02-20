@@ -1,20 +1,29 @@
 export const dbName = 'CallOfDuty';
-export const dbCollection = 'Soldiers';
+export const soldiersDBCollection = 'Soldiers';
+export const dutiesDBCollection = 'Duties';
 
 async function addNewSoldier(client, newSoldier) {
   newSoldier.duties = [];
-  const soldierInserted = await client.db(dbName).collection(dbCollection).insertOne(newSoldier);
+  const soldierInserted = await client.db(dbName).collection(soldiersDBCollection).insertOne(newSoldier);
   return soldierInserted;
 }
 
 async function lookForSoldier(client, specificSoldier) {
-  const result = await client.db(dbName).collection(dbCollection).findOne(specificSoldier);
+  const result = await client.db(dbName).collection(soldiersDBCollection).findOne(specificSoldier);
   return result;
 }
 
-async function lookForAllSoldiers(client, specifiesSoldiers) {
-  const result = await client.db(dbName).collection(dbCollection).find(specifiesSoldiers).toArray();
+async function lookForAllSoldiers(client, specifiedSoldiers) {
+  const result = await client.db(dbName).collection(soldiersDBCollection).find(specifiedSoldiers).toArray();
   return result;
 }
 
-export { addNewSoldier, lookForSoldier, lookForAllSoldiers };
+async function createNewDuty(client, specifiedDuty) {
+  specifiedDuty.soldier = [];
+  const dutyInserted = await client.db(dbName).collection(dutiesDBCollection).insertOne(specifiedDuty);
+  return dutyInserted;
+}
+
+export {
+  addNewSoldier, lookForSoldier, lookForAllSoldiers, createNewDuty,
+};
