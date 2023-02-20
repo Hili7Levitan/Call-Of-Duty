@@ -23,11 +23,9 @@ export default async function soldiersRouter(app) {
     const soldier = req.body;
     try {
       const insertionRes = await addNewSoldier(soldier);
-<<<<<<< Updated upstream
-      const soldierInserted = await lookForSoldier({ _id: insertionRes.insertedId });
-=======
+
       const soldierInserted = await lookForSoldier({ id: insertionRes.insertedId });
->>>>>>> Stashed changes
+
       res.status(201).send(soldierInserted);
     } catch (error) {
       if (error.code === 11000) {
