@@ -4,7 +4,7 @@ import {
 } from 'vitest';
 import { client } from './connections.js';
 import {
-  addNewSoldier, lookForSoldier, lookForAllSoldiers, dbName, dbCollection,
+  addNewSoldier, lookForSoldier, lookForAllSoldiers, dbName, soldiersDBCollection,
 } from './database.js';
 
 beforeAll(async () => {
@@ -16,7 +16,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await client.db(dbName).collection(dbCollection).deleteMany({});
+  await client.db(dbName).collection(soldiersDBCollection).deleteMany({});
 });
 
 describe('addNewSoldier function', () => {
