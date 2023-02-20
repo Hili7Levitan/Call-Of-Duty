@@ -5,7 +5,7 @@
   "description": "Call Of Duty",
   "main": "server.js",
   "scripts": {
-    "test": "logLevel=silent vitest",
+    "test": "vitest",
     "start": "node server.js | pino-pretty",
     "dev": "nodemon server.js | pino-pretty",
     "coverage": "vitest run --coverage",
@@ -14,7 +14,6 @@
   "author": "Hili Levitan",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.0.3",
     "fastify": "^4.11.0",
     "mongodb": "^4.13.0"
   },
