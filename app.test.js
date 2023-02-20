@@ -4,7 +4,7 @@ import {
 } from 'vitest';
 import { client } from './connections.js';
 import app from './app.js';
-import { dbName, dbCollection, addNewSoldier } from './database.js';
+import { dbName, soldiersDBCollection, addNewSoldier } from './database.js';
 
 beforeAll(async () => {
   await client.connect();
@@ -15,7 +15,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await client.db(dbName).collection(dbCollection).deleteMany({});
+  await client.db(dbName).collection(soldiersDBCollection).deleteMany({});
 });
 
 describe('Get health route', () => {

@@ -23,7 +23,7 @@ const newSoldierSchema = {
   },
 };
 
-export default function router(app, opts, done) {
+export default function soldierRouter(app, opts, done) {
   app.logLevel = logOptions;
   app.post('/', { newSoldierSchema }, async (req, res) => {
     const soldier = req.body;

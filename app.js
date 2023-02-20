@@ -1,7 +1,8 @@
 import Fastify from 'fastify';
 import events from 'events';
 import { connectToDB } from './connections.js';
-import router from './routes/soldiers.js';
+import soldierRouter from './routes/soldiers.js';
+import dutyRouter from './routes/duties.js';
 
 const eventEmitter = new events.EventEmitter();
 eventEmitter.on('load', connectToDB);
@@ -16,6 +17,7 @@ const app = Fastify({
 app.get('/health', (req, res) => {
   res.status(200).send('ok');
 });
-app.register(router, { prefix: '/soldiers' });
+app.register(soldierRouter, { prefix: '/soldiers' });
+app.register(dutyRouter, { prefix: '/duties' });
 
 export default app;
