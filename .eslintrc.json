@@ -12,7 +12,6 @@
     "rules": {
         "import/extensions": [2, {"js" : 2}],
         "no-param-reassign": "warn",
-        "no-underscore-dangle": "off",
-        "max-len": "off"
+        "no-underscore-dangle": "off"
     }
 }
