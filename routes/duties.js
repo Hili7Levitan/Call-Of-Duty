@@ -1,3 +1,4 @@
+import Ajv from 'ajv';
 import {
   createNewDuty, lookForAllDuties, lookForDutyById, deleteDutyById, updateDuty,
 } from '../database.js';
@@ -10,13 +11,32 @@ const newDutySchema = {
     properties: {
       name: { type: 'string' },
       location: { type: 'string' },
-      time: { type: 'ISODate' },
+      time: {
+        start: { type: 'string', format: 'ISODate' },
+        end: { type: 'string', format: 'ISODate' },
+      },
       constraints: { type: 'array' },
       soldiersRequired: { type: 'integer' },
       value: { type: 'integer' },
     },
 
   },
+};
+
+const dutyEditSchema = {
+  type: 'object',
+  properties: {
+    name: { type: 'string' },
+    location: { type: 'string' },
+    time: {
+      start: { type: 'string', format: 'ISODate' },
+      end: { type: 'string', format: 'ISODate' },
+    },
+    constraints: { type: 'array' },
+    soldiersRequired: { type: 'integer' },
+    value: { type: 'integer' },
+  },
+
 };
 
 export default function dutyRouter(app, opts, done) {
@@ -49,11 +69,7 @@ export default function dutyRouter(app, opts, done) {
       objectSent.value = dutiesQuery.value;
     }
     const searchResult = await lookForAllDuties(client, objectSent);
-    if (searchResult) {
-      res.send(searchResult);
-    } else {
-      res.send('found nothing');
-    }
+    res.send(searchResult);
   });
 
   app.get('/:id', async (req, res) => {
@@ -75,29 +91,39 @@ export default function dutyRouter(app, opts, done) {
       client,
       { _id: Number(idForDelete) },
     );
-    if (searchResponse) {
+    if (searchResponse.soldier.length === 0) {
       await deleteDutyById(
         client,
         { _id: Number(idForDelete) },
       );
       res.status(200).send('duty deleted');
     } else {
-      res.status(400).send('duty doesnt exist');
+      res.status(400).send('duty doesnt exist or it is already scheduled');
     }
   });
 
-  app.patch('/:id', { newDutySchema }, async (req, res) => {
+  app.patch('/:id', async (req, res) => {
     const dutyToUpdate = req.params.id;
     const updatesToDo = req.body;
-    const updateResult = await updateDuty(
-      client,
-      { _id: Number(dutyToUpdate) },
-      updatesToDo,
-    );
-    if (updateResult.modifiedCount === 1) {
-      res.send('duty updated');
+    const updatedDuty = await lookForDutyById(client, { _id: Number(dutyToUpdate) });
+    const ajv = new Ajv({ strict: false });
+    ajv.compile(dutyEditSchema);
+    const valid = ajv.validate(updatesToDo);
+    if (!valid) {
+      res.send('parameters inserted are not valid');
+    } else if (updatedDuty.soldier.length === 0) {
+      const updateResult = await updateDuty(
+        client,
+        { _id: Number(dutyToUpdate) },
+        updatesToDo,
+      );
+      if (updateResult.modifiedCount === 1) {
+        res.send('duty updated');
+      } else {
+        res.send('not updated');
+      }
     } else {
-      res.send('not updated');
+      res.send('schedualed duties cannot be changed!');
     }
   });
   done();
