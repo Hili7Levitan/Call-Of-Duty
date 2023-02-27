@@ -91,14 +91,18 @@ export default function dutyRouter(app, opts, done) {
       client,
       { _id: Number(idForDelete) },
     );
-    if (searchResponse.soldier.length === 0) {
-      await deleteDutyById(
-        client,
-        { _id: Number(idForDelete) },
-      );
-      res.status(200).send('duty deleted');
+    if (searchResponse) {
+      if (searchResponse.soldier.length === 0) {
+        await deleteDutyById(
+          client,
+          { _id: Number(idForDelete) },
+        );
+        res.status(200).send('duty deleted');
+      } else {
+        res.status(400).send('scheduled duties cannot be deleted');
+      }
     } else {
-      res.status(400).send('duty doesnt exist or it is already scheduled');
+      res.status(400).send('duty doesnt exist');
     }
   });
 
@@ -106,24 +110,29 @@ export default function dutyRouter(app, opts, done) {
     const dutyToUpdate = req.params.id;
     const updatesToDo = req.body;
     const updatedDuty = await lookForDutyById(client, { _id: Number(dutyToUpdate) });
+    console.log(updatedDuty);
     const ajv = new Ajv({ strict: false });
     ajv.compile(dutyEditSchema);
     const valid = ajv.validate(updatesToDo);
     if (!valid) {
       res.send('parameters inserted are not valid');
-    } else if (updatedDuty.soldier.length === 0) {
-      const updateResult = await updateDuty(
-        client,
-        { _id: Number(dutyToUpdate) },
-        updatesToDo,
-      );
-      if (updateResult.modifiedCount === 1) {
-        res.send('duty updated');
+    } else if (updatedDuty !== null) {
+      if ((updatedDuty.soldier.length === 0)) {
+        const updateResult = await updateDuty(
+          client,
+          { _id: Number(dutyToUpdate) },
+          updatesToDo,
+        );
+        if (updateResult.modifiedCount === 1) {
+          res.status(200).send('duty updated');
+        } else {
+          res.status(400).send('not updated');
+        }
       } else {
-        res.send('not updated');
+        res.status(400).send('schedualed duties cannot be changed!');
       }
     } else {
-      res.send('schedualed duties cannot be changed!');
+      res.status(400).send('duty doesnt exist!');
     }
   });
   done();

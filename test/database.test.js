@@ -2,10 +2,10 @@ import {
   afterAll,
   beforeAll, beforeEach, describe, expect, it,
 } from 'vitest';
-import { client } from './connections.js';
+import { client } from '../connections.js';
 import {
   addNewSoldier, lookForSoldier, lookForAllSoldiers, dbName, soldiersDBCollection,
-} from './database.js';
+} from '../database.js';
 
 beforeAll(async () => {
   await client.connect();
