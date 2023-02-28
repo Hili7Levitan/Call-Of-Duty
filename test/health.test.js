@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import app from './app.js';
+import app from '../app.js';
 
 describe('Get health route', () => {
   it('checks that status is 200', async () => {
