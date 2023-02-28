@@ -10,6 +10,8 @@
         "sourceType": "module"
     },
     "rules": {
-        "import/extensions": "always"
+        "import/extensions": [2, {"js" : 2}],
+        "no-param-reassign": "warn",
+        "no-underscore-dangle": "off"
     }
 }
