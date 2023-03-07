@@ -1,3 +1,5 @@
+// import { client } from './connections';
+
 export const dbName = 'CallOfDuty';
 export const soldiersDBCollection = 'Soldiers';
 export const dutiesDBCollection = 'Duties';
@@ -51,7 +53,12 @@ async function updateDuty(client, specificDuty, fieldsToUpdate) {
   return result;
 }
 
+async function getJusticeBoard(client) {
+  const result = await client.db(dbName).collection(soldiersDBCollection).find();
+  return result;
+}
+
 export {
   addNewSoldier, lookForSoldier, lookForAllSoldiers, createNewDuty,
-  lookForAllDuties, lookForDutyById, deleteDutyById, updateDuty,
+  lookForAllDuties, lookForDutyById, deleteDutyById, updateDuty, getJusticeBoard,
 };
