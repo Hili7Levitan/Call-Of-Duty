@@ -1,5 +1,4 @@
-// import { client } from './connections';
-
+/* eslint-disable no-plusplus */
 export const dbName = 'CallOfDuty';
 export const soldiersDBCollection = 'Soldiers';
 export const dutiesDBCollection = 'Duties';
@@ -54,7 +53,10 @@ async function updateDuty(client, specificDuty, fieldsToUpdate) {
 }
 
 async function getJusticeBoard(client) {
-  const result = await client.db(dbName).collection(soldiersDBCollection).find();
+  const result = await client.db(dbName).collection(dutiesDBCollection).aggregate([
+    { $unwind: '$soldier' },
+    { $group: { _id: '$soldier', score: { $sum: '$value' } } },
+  ]).toArray();
   return result;
 }
 
