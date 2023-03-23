@@ -1,9 +1,10 @@
 import { getJusticeBoard } from '../database.js';
+import { client } from '../connections.js';
 
 export default function justiceBoardRouter(app, opts, done) {
   app.get('/', async (req, res) => {
-    const allSoldiersInDB = await getJusticeBoard();
-    res.send(allSoldiersInDB);
+    const justiceBoard = await getJusticeBoard(client);
+    res.send(justiceBoard);
   });
   done();
 }
