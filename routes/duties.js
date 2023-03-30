@@ -107,4 +107,11 @@ export default async function dutyRouter(app) {
       }
     }
   });
+
+  app.put('/:id/schedule', async (req, res) => {
+    const dutyToSchedule = req.params.id;
+    const scheduleResult = scheduleDuty(client, dutyToSchedule);
+    res.send(scheduleResult);
+  });
+  done();
 }

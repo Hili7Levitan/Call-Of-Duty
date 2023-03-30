@@ -22,7 +22,7 @@ async function lookForAllSoldiers(client, specifiedSoldiers) {
 }
 
 async function createNewDuty(client, newDuty) {
-  newDuty.soldier = [];
+  newDuty.soldiers = ['58506981'];
   const dutyInserted = await client.db(dbName).collection(dutiesDBCollection)
     .insertOne(newDuty);
   return dutyInserted;
@@ -53,14 +53,48 @@ async function updateDuty(client, specificDuty, fieldsToUpdate) {
 }
 
 async function getJusticeBoard(client) {
-  const result = await client.db(dbName).collection(dutiesDBCollection).aggregate([
-    { $unwind: '$soldier' },
-    { $group: { _id: '$soldier', score: { $sum: '$value' } } },
+  const result = await client.db(dbName).collection(soldiersDBCollection).aggregate([
+    {
+      $lookup: {
+        from: dutiesDBCollection,
+        localField: '_id',
+        foreignField: 'soldiers',
+        as: 'scheduledDutyDetails',
+      },
+    },
+    { $unwind: { path: '$scheduledDutyDetails', preserveNullAndEmptyArrays: true } },
+    { $group: { _id: '$_id', score: { $sum: '$scheduledDutyDetails.value' } } },
+    { $sort: { score: 1 } },
   ]).toArray();
   return result;
 }
 
+async function scheduleDuty(client, duty) {
+  const fullDuty = await client.db(dbName).collection(dutiesDBCollection)
+    .findOne({ _id: Number(duty) });
+  const numberOfSoldiersRequired = fullDuty.soldiersRequired;
+  if (fullDuty.constraints) {
+    const bla = await client.db(dbName).collection(soldiersDBCollection)
+      .find({ limitations: { $ne: fullDuty.constraints } }).toArray();
+    const map1 = bla.map((x) => x._id);
+    const currentJustice = await client.db(dbName).collection(dutiesDBCollection).aggregate([
+      { $unwind: '$soldiers' },
+      { $group: { _id: '$soldiers', score: { $sum: '$value' } } },
+      { $sort: { score: 1 } },
+    ]).toArray();
+    const constrainedSoldiers = map1.some((element) => currentJustice.includes(`_id: ${element}`));
+    // if (constrainedSoldiers === true) {
+
+    // }
+    const soldiersSelected = currentJustice.slice(0, numberOfSoldiersRequired);
+    const dutyAfterSchedule = duty;
+    dutyAfterSchedule.soldiers = soldiersSelected;
+    return dutyAfterSchedule;
+  }
+  console.log('bammer');
+}
+
 export {
   addNewSoldier, lookForSoldier, lookForAllSoldiers, createNewDuty,
-  lookForAllDuties, lookForDutyById, deleteDutyById, updateDuty, getJusticeBoard,
+  lookForAllDuties, lookForDutyById, deleteDutyById, updateDuty, getJusticeBoard, scheduleDuty,
 };
