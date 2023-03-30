@@ -1,10 +1,8 @@
-import { getJusticeBoard } from '../database.js';
-import { client } from '../connections.js';
+import getJusticeBoard from '../database/justice-board-repository.js';
 
-export default function justiceBoardRouter(app, opts, done) {
+export default async function justiceBoardRouter(app) {
   app.get('/', async (req, res) => {
-    const justiceBoard = await getJusticeBoard(client);
+    const justiceBoard = await getJusticeBoard();
     res.send(justiceBoard);
   });
-  done();
 }

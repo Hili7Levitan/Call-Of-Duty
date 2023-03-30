@@ -7,8 +7,10 @@ import { client } from '../connections.js';
 
 import {
   addNewDuty,
-  lookForAllDuties, dutiesDBCollection, dbName, deleteDutyById, lookForDutyById, updateDuty,
+  lookForAllDuties, dutiesDBCollection, deleteDutyById, lookForDutyById, updateDuty,
 } from '../database/duties-repository.js';
+
+import { dbName } from '../database/soldiers-repository.js';
 
 beforeAll(async () => {
   await client.connect();

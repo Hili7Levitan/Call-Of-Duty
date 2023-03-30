@@ -6,8 +6,9 @@ import { ObjectId } from 'mongodb';
 import { client } from '../connections.js';
 import app from '../app.js';
 import {
-  dbName, dutiesDBCollection, addNewDuty, updateDuty, lookForAllDuties,
+  dutiesDBCollection, addNewDuty, updateDuty, lookForAllDuties,
 } from '../database/duties-repository.js';
+import { dbName } from '../database/soldiers-repository.js';
 
 beforeAll(async () => {
   await client.connect();

@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { client } from '../connections.js';
+import { dbName } from './soldiers-repository.js';
 
-export const dbName = 'CallOfDuty';
 export const dutiesDBCollection = 'Duties';
 
 async function addNewDuty(newDuty) {
