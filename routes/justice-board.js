@@ -8,8 +8,7 @@ export default async function justiceBoardRouter(app) {
 
   app.get('/:id', async (req, res) => {
     const dutyForSchedule = req.params.id;
-    console.log(dutyForSchedule);
-    const scheduledDuty = await scheduleDuty(client, dutyForSchedule);
+    const scheduledDuty = await scheduleDuty(dutyForSchedule);
     res.send(scheduledDuty);
   });
 }

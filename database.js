@@ -1,58 +1,66 @@
-/* eslint-disable no-plusplus */
+import { client } from './connections.js';
+
 export const dbName = 'CallOfDuty';
 export const soldiersDBCollection = 'Soldiers';
 export const dutiesDBCollection = 'Duties';
 
-async function addNewSoldier(client, newSoldier) {
+async function addNewSoldier(newSoldier) {
   newSoldier.duties = [];
   const soldierInserted = await client.db(dbName).collection(soldiersDBCollection)
     .insertOne(newSoldier);
   return soldierInserted;
 }
 
-async function lookForSoldier(client, specificSoldier) {
+async function lookForSoldier(specificSoldier) {
   const result = await client.db(dbName).collection(soldiersDBCollection).findOne(specificSoldier);
   return result;
 }
 
-async function lookForAllSoldiers(client, specifiedSoldiers) {
+async function lookForAllSoldiers(specifiedSoldiers) {
   const result = await client.db(dbName).collection(soldiersDBCollection)
     .find(specifiedSoldiers).toArray();
   return result;
 }
 
-async function createNewDuty(client, newDuty) {
-  newDuty.soldiers = ['58506981'];
+async function createNewDuty(newDuty) {
+  newDuty.soldiers = [];
   const dutyInserted = await client.db(dbName).collection(dutiesDBCollection)
     .insertOne(newDuty);
   return dutyInserted;
 }
 
-async function lookForAllDuties(client, specifiedDuty) {
+async function lookForAllDuties(specifiedDuty) {
   const result = await client.db(dbName).collection(dutiesDBCollection)
     .find(specifiedDuty).toArray();
   return result;
 }
 
-async function lookForDutyById(client, specificDuty) {
+async function lookForDutyById(specificDuty) {
   const result = await client.db(dbName).collection(dutiesDBCollection)
     .findOne(specificDuty);
   return result;
 }
 
-async function deleteDutyById(client, specificDuty) {
+async function deleteDutyById(specificDuty) {
   const result = await client.db(dbName).collection(dutiesDBCollection)
     .deleteOne(specificDuty);
   return result;
 }
 
-async function updateDuty(client, specificDuty, fieldsToUpdate) {
+async function updateDuty(specificDuty, fieldsToUpdate) {
   const result = await client.db(dbName).collection(dutiesDBCollection)
     .updateOne(specificDuty, { $set: fieldsToUpdate });
   return result;
 }
 
-async function getJusticeBoard(client) {
+async function updateSoldier(specificSoldier) {
+  console.log(specificSoldier);
+  const result = await client.db(dbName).collection(soldiersDBCollection)
+    .updateOne({ specificSoldier }, { $set: { rank: { $add: ['$rank', '$rankAdded'] } } });
+  return result;
+}
+
+async function getJusticeBoard() {
   const result = await client.db(dbName).collection(soldiersDBCollection).aggregate([
     {
       $lookup: {
@@ -69,30 +77,46 @@ async function getJusticeBoard(client) {
   return result;
 }
 
-async function scheduleDuty(client, duty) {
+async function scheduleDuty(duty) {
   const fullDuty = await client.db(dbName).collection(dutiesDBCollection)
     .findOne({ _id: Number(duty) });
   const numberOfSoldiersRequired = fullDuty.soldiersRequired;
-  if (fullDuty.constraints) {
-    const bla = await client.db(dbName).collection(soldiersDBCollection)
-      .find({ limitations: { $ne: fullDuty.constraints } }).toArray();
-    const map1 = bla.map((x) => x._id);
-    const currentJustice = await client.db(dbName).collection(dutiesDBCollection).aggregate([
-      { $unwind: '$soldiers' },
-      { $group: { _id: '$soldiers', score: { $sum: '$value' } } },
+  if (fullDuty.soldiers.length === 0) {
+    const currentJustice = await client.db(dbName).collection(soldiersDBCollection).aggregate([
+      { $match: { limitations: { $nin: fullDuty.constraints } } },
+      {
+        $lookup: {
+          from: dutiesDBCollection,
+          localField: '_id',
+          foreignField: 'soldiers',
+          as: 'scheduledDutyDetails',
+        },
+      },
+      { $unwind: { path: '$scheduledDutyDetails', preserveNullAndEmptyArrays: true } },
+      { $group: { _id: '$_id', score: { $sum: '$scheduledDutyDetails.value' } } },
       { $sort: { score: 1 } },
     ]).toArray();
-    const constrainedSoldiers = map1.some((element) => currentJustice.includes(`_id: ${element}`));
-    // if (constrainedSoldiers === true) {
-
-    // }
     const soldiersSelected = currentJustice.slice(0, numberOfSoldiersRequired);
-    const dutyAfterSchedule = duty;
+    const dutyAfterSchedule = fullDuty;
     dutyAfterSchedule.soldiers = soldiersSelected;
+    updateDuty({ _id: Number(duty) }, dutyAfterSchedule);
+    const scheduledIds = soldiersSelected.map((x) => x._id);
+    const updateRank = await client.db(dbName).collection(soldiersDBCollection).aggregate([
+      { $match: { _id: { $in: scheduledIds } } },
+      { $addFields: { rankAdded: fullDuty.value } },
+      // { $set: { rank: { $add: ['$rank', '$rankAdded'] } } },
+      // { $unset: 'rankAdded' },
+    ]).toArray();
+
+    for (let i = 0; i < updateRank.length; i += 1) {
+      console.log(updateRank[i]);
+      updateSoldier({ _id: Number(updateRank[i]._id) });
+    }
     return dutyAfterSchedule;
   }
-  console.log('bammer');
+  return ('oops! duty is already scheduled');
 }
+// add update rank after schedule and make sure chenges update in db and update soldier duties
 
 export {
   addNewSoldier, lookForSoldier, lookForAllSoldiers, createNewDuty,
