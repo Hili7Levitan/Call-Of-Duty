@@ -7,14 +7,16 @@
   "scripts": {
     "test": "logLevel=silent vitest",
     "start": "node server.js | pino-pretty",
-    "dev": "nodemon server.js",
+    "dev": "nodemon server.js | pino-pretty",
     "coverage": "vitest run --coverage",
     "lint": "eslint --fix ./*.js"
   },
   "author": "Hili Levitan",
   "license": "ISC",
   "dependencies": {
-    "fastify": "^4.11.0"
+    "dotenv": "^16.0.3",
+    "fastify": "^4.11.0",
+    "mongodb": "^4.13.0"
   },
   "devDependencies": {
     "@vitest/coverage-c8": "^0.26.3",
