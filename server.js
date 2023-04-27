@@ -1,3 +1,13 @@
 import app from './app.js';
+import { connectToDB } from './connections.js';
 
-app.listen({ port: process.env.PORT || 3000 });
+async function init() {
+  try {
+    await connectToDB();
+    app.listen({ port: process.env.PORT || 3000 });
+  } catch (error) {
+    app.log.error(error);
+  }
+}
+
+init();
