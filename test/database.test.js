@@ -4,7 +4,7 @@ import {
 } from 'vitest';
 import { client } from '../connections.js';
 import {
-  addNewSoldier, lookForSoldier, lookForAllSoldiers, dbName, dbCollection,
+  addNewSoldier, lookForSoldier, lookForAllSoldiers, dbName, soldiersDBCollection,
 } from '../database.js';
 
 beforeAll(async () => {
@@ -16,43 +16,28 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await client.db(dbName).collection(dbCollection).deleteMany({});
+  await client.db(dbName).collection(soldiersDBCollection).deleteMany({});
 });
 
 describe('addNewSoldier function', () => {
-  it('Should return res with acknowledged true', async () => {
+  it('Should insert soldier', async () => {
     const res = await addNewSoldier({ name: 'Amit' });
     expect(res.acknowledged).eq(true);
   });
 });
 
-const testSoldier1 = {
-  id: '12345',
-  name: 'Hili',
-  rank: '1',
-  limitations: ['none', 'none'],
-};
-
-const testSoldier2 = {
-  id: '45678',
-  name: 'Hili',
-  rank: '1',
-  limitations: ['none', 'none'],
-};
-
 describe('lookForSoldier function', () => {
   it('should find correct soldier', async () => {
-    await addNewSoldier(testSoldier1);
-    const res = await lookForSoldier(testSoldier1);
-    expect(res._id).toEqual(testSoldier1.id);
+    await addNewSoldier({ id: 9033543 });
+    const res = await lookForSoldier({ _id: 9033543 });
+    expect(res._id).eq(9033543);
   });
 });
 
 describe('lookForAllSoldiers function', () => {
-  it('should find all soldiers with the same name', async () => {
-    await addNewSoldier(testSoldier1);
-    await addNewSoldier({ ...testSoldier2, name: testSoldier1.name });
-    const res = await lookForAllSoldiers({ name: testSoldier1.name });
-    expect(res.length).toBe(2);
+  it('should find all soldiers', async () => {
+    await addNewSoldier({ id: 9033543 });
+    const res = await lookForAllSoldiers({ _id: 9033543 });
+    expect(res.length).toBe(1);
   });
 });
