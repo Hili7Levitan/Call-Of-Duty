@@ -6,7 +6,7 @@ import { client } from '../connections.js';
 import app from '../app.js';
 import * as database from '../database.js';
 
-const { dbName, dbCollection, addNewSoldier } = database;
+const { dbName, soldiersDBCollection, addNewSoldier } = database;
 
 beforeAll(async () => {
   await client.connect();
@@ -17,7 +17,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await client.db(dbName).collection(dbCollection).deleteMany({});
+  await client.db(dbName).collection(soldiersDBCollection).deleteMany({});
 });
 
 const testSoldier = {
@@ -81,7 +81,6 @@ describe('Get soldier by id route', () => {
       url: `/soldiers/${testSoldier.id}`,
     });
     expect(res.statusCode).toBe(200);
-    expect(res).toBeTypeOf('object');
     expect(res.body).toContain(testSoldier.name);
     expect(res.body).toContain(testSoldier.id);
   });
@@ -98,7 +97,6 @@ describe('Get soldier by id route', () => {
     const lookForSoldierSpy = vi.spyOn(database, 'lookForSoldier');
     lookForSoldierSpy.mockImplementation(() => {
       const err = new Error();
-      err.statusCode = 500;
       throw err;
     });
     const res = await app.inject({
@@ -120,12 +118,13 @@ describe('Get soldiers route', () => {
     expect(result.body).toContain(testSoldier.name);
   });
 
-  it('checks that when searched using id you still get an object back', async () => {
+  it('checks that when searched using id you still get the relevant object back', async () => {
     await addNewSoldier(testSoldier);
     const res = await app.inject({
       method: 'GET',
       url: `/soldiers?name=${testSoldier.name}&id=${testSoldier.id}`,
     });
-    expect(res).toBeTypeOf('object');
+    expect(res.body).toContain(testSoldier.name);
+    expect(res.body).toContain(testSoldier.id);
   });
 });
