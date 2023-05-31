@@ -43,15 +43,22 @@ async function lookForAllSoldiers(specifiedSoldiers) {
   return result;
 }
 
-async function createNewDuty(newDuty) {
-  newDuty.soldiers = [];
+async function addNewDuty(newDuty) {
+  const dutyToInsert = {
+    name: newDuty.name,
+    location: newDuty.location,
+    time: newDuty.time,
+    constraints: newDuty.constraints,
+    soldiersRequired: newDuty.soldiersRequired,
+    value: newDuty.value,
+  };
+  dutyToInsert.soldiers = [];
   const dutyInserted = await client.db(dbName).collection(dutiesDBCollection)
-    .insertOne(newDuty);
+    .insertOne(dutyToInsert);
   return dutyInserted;
 }
 
 async function lookForAllDuties(specifiedDuty) {
-  console.log(specifiedDuty);
   const result = await client.db(dbName).collection(dutiesDBCollection)
     .find(specifiedDuty).toArray();
   return result;
@@ -76,6 +83,6 @@ async function updateDuty(specificDuty, fieldsToUpdate) {
 }
 
 export {
-  addNewSoldier, lookForSoldier, lookForAllSoldiers, createNewDuty,
+  addNewSoldier, lookForSoldier, lookForAllSoldiers, addNewDuty,
   lookForAllDuties, lookForDutyById, deleteDutyById, updateDuty,
 };
