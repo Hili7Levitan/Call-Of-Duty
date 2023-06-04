@@ -7,7 +7,7 @@ import { client } from '../connections.js';
 import app from '../app.js';
 import {
   dbName, dutiesDBCollection, addNewDuty, updateDuty, lookForAllDuties,
-} from '../database.js';
+} from '../database/duties_repository.js';
 
 beforeAll(async () => {
   await client.connect();
@@ -41,9 +41,8 @@ describe('Post duties route', () => {
       body: testDuty,
     });
     const dutyInserted = await lookForAllDuties({ name: testDuty.name });
-    const dutyInsertedId = dutyInserted[0]._id;
     expect(res.statusCode).toBe(201);
-    expect(res.json()).toEqual({ message: `duty created! _id is: ${dutyInsertedId}` });
+    expect(res.body).toContain(dutyInserted[0]._id);
   });
 });
 

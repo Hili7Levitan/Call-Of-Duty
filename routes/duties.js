@@ -1,29 +1,29 @@
 import { ObjectId } from 'mongodb';
 import {
   addNewDuty, lookForAllDuties, lookForDutyById, deleteDutyById, updateDuty,
-} from '../database.js';
+} from '../database/duties_repository.js';
 
+const dutyProperties = {
+  name: { type: 'string' },
+  location: { type: 'string' },
+  time: {
+    type: 'object',
+    properties: {
+      start: { type: 'string', format: 'date' },
+      end: { type: 'string', format: 'date' },
+    },
+  },
+  constraints: { type: 'array' },
+  soldiersRequired: { type: 'number' },
+  value: { type: 'number' },
+};
 const newDutySchema = {
   schema: {
     body: {
       type: 'object',
       additionalProperties: false,
       required: ['name', 'location', 'time', 'constraints', 'soldiersRequired', 'value'],
-      properties: {
-        name: { type: 'string' },
-        location: { type: 'string' },
-        time: {
-          type: 'object',
-          properties: {
-            start: { type: 'string', format: 'date' },
-            end: { type: 'string', format: 'date' },
-          },
-        },
-        constraints: { type: 'array' },
-        soldiersRequired: { type: 'number' },
-        value: { type: 'number' },
-      },
-
+      properties: dutyProperties,
     },
   },
 
@@ -33,49 +33,34 @@ const getDutySchema = {
   schema: {
     query: {
       type: 'object',
-      properties: {
-        name: { type: 'string' },
-        location: { type: 'string' },
-        time: {
-          type: 'object',
-          properties: {
-            start: { type: 'string', format: 'date' },
-            end: { type: 'string', format: 'date' },
-          },
-        },
-        constraints: { type: 'array' },
-        soldiersRequired: { type: 'number' },
-        value: { type: 'number' },
-      },
+      properties: dutyProperties,
     },
   },
 
 };
 
 const dutyEditSchema = {
-  type: 'object',
-  properties: {
-    name: { type: 'string' },
-    location: { type: 'string' },
-    time: {
+  schema: {
+    params: {
       type: 'object',
       properties: {
-        start: { type: 'string', format: 'date' },
-        end: { type: 'string', format: 'date' },
+        _id: { type: 'string' },
       },
     },
-    constraints: { type: 'array' },
-    soldiersRequired: { type: 'number' },
-    value: { type: 'number' },
+    body: {
+      type: 'object',
+      properties: dutyProperties,
+    },
   },
 
 };
 
-export default function dutyRouter(app, opts, done) {
+export default async function dutyRouter(app) {
   app.post('/', newDutySchema, async (req, res) => {
     const dutyInserted = req.body;
     const dutyCreated = await addNewDuty(dutyInserted);
-    res.status(201).send({ message: `duty created! _id is: ${dutyCreated.insertedId}` });
+    const fullDutyCreated = await lookForAllDuties({ _id: dutyCreated.insertedId });
+    res.status(201).send(fullDutyCreated);
   });
 
   app.get('/', getDutySchema, async (req, res) => {
@@ -117,23 +102,20 @@ export default function dutyRouter(app, opts, done) {
     const dutyToUpdate = req.params.id;
     const updatesToDo = req.body;
     const updatedDuty = await lookForDutyById({ _id: ObjectId(dutyToUpdate) });
-    if (updatedDuty !== null) {
-      if ((updatedDuty.soldiers.length === 0)) {
-        const updateResult = await updateDuty(
-          { _id: ObjectId(dutyToUpdate) },
-          updatesToDo,
-        );
-        if (updateResult.modifiedCount === 1) {
-          res.status(200).send({ message: 'duty updated' });
-        } else {
-          res.status(400).send({ message: 'not updated' });
-        }
-      } else {
-        res.status(400).send({ message: 'scheduled duties cannot be changed!' });
-      }
-    } else {
+    if (!updatedDuty) {
       res.status(400).send({ message: 'duty doesnt exist!' });
     }
+    if (updatedDuty.soldiers.length !== 0) {
+      res.status(400).send({ message: 'scheduled duties cannot be changed!' });
+    } else {
+      const updateResult = await updateDuty(
+        { _id: ObjectId(dutyToUpdate) },
+        updatesToDo,
+      ); if (updateResult.modifiedCount === 1) {
+        res.status(200).send({ message: 'duty updated' });
+      } else {
+        res.status(400).send({ message: 'not updated' });
+      }
+    }
   });
-  done();
 }

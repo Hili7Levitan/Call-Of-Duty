@@ -1,4 +1,11 @@
-import { addNewSoldier, lookForSoldier, lookForAllSoldiers } from '../database.js';
+import { addNewSoldier, lookForSoldier, lookForAllSoldiers } from '../database/soldiers_repository.js';
+
+const soldierProperties = {
+  id: { type: 'string' },
+  name: { type: 'string' },
+  rank: { type: 'string' },
+  limitations: { type: 'array' },
+};
 
 const newSoldierSchema = {
   schema: {
@@ -6,12 +13,7 @@ const newSoldierSchema = {
       type: 'object',
       additionalProperties: false,
       required: ['id', 'name', 'rank', 'limitations'],
-      properties: {
-        id: { type: 'string' },
-        name: { type: 'string' },
-        rank: { type: 'string' },
-        limitations: { type: 'array' },
-      },
+      properties: soldierProperties,
     },
   },
 };

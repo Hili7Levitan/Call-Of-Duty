@@ -5,9 +5,13 @@ import {
 } from 'vitest';
 import { client } from '../connections.js';
 import {
-  addNewSoldier, lookForSoldier, lookForAllSoldiers, dbName, soldiersDBCollection, addNewDuty,
+  addNewSoldier, lookForSoldier, lookForAllSoldiers, dbName, soldiersDBCollection,
+} from '../database/soldiers_repository.js';
+
+import {
+  addNewDuty,
   lookForAllDuties, dutiesDBCollection, deleteDutyById, lookForDutyById, updateDuty,
-} from '../database.js';
+} from '../database/duties_repository.js';
 
 beforeAll(async () => {
   await client.connect();
