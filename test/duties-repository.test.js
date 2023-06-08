@@ -4,14 +4,11 @@ import {
   beforeAll, beforeEach, describe, expect, it,
 } from 'vitest';
 import { client } from '../connections.js';
-import {
-  addNewSoldier, lookForSoldier, lookForAllSoldiers, dbName, soldiersDBCollection,
-} from '../database/soldiers_repository.js';
 
 import {
   addNewDuty,
-  lookForAllDuties, dutiesDBCollection, deleteDutyById, lookForDutyById, updateDuty,
-} from '../database/duties_repository.js';
+  lookForAllDuties, dutiesDBCollection, dbName, deleteDutyById, lookForDutyById, updateDuty,
+} from '../database/duties-repository.js';
 
 beforeAll(async () => {
   await client.connect();
@@ -22,31 +19,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await client.db(dbName).collection(soldiersDBCollection).deleteMany({});
   await client.db(dbName).collection(dutiesDBCollection).deleteMany({});
-});
-
-describe('addNewSoldier function', () => {
-  it('Should insert soldier', async () => {
-    const res = await addNewSoldier({ name: 'Amit' });
-    expect(res.acknowledged).eq(true);
-  });
-});
-
-describe('lookForSoldier function', () => {
-  it('should find correct soldier', async () => {
-    await addNewSoldier({ id: 9033543 });
-    const res = await lookForSoldier({ _id: 9033543 });
-    expect(res._id).eq(9033543);
-  });
-});
-
-describe('lookForAllSoldiers function', () => {
-  it('should find all soldiers', async () => {
-    await addNewSoldier({ id: 9033543 });
-    const res = await lookForAllSoldiers({ id: 9033543 });
-    expect(res.length).toBe(1);
-  });
 });
 
 const testDuty = {
@@ -82,7 +55,7 @@ describe('lookForDutyById function', () => {
     await addNewDuty(testDuty);
     const dutyInserted = await lookForAllDuties({ name: testDuty.name });
     const dutyInsertedId = dutyInserted[0]._id;
-    const result = await lookForDutyById({ _id: ObjectId(dutyInsertedId) });
+    const result = await lookForDutyById(dutyInsertedId);
     expect(result._id).toEqual(dutyInsertedId);
   });
 });
@@ -92,7 +65,7 @@ describe('deleteDutyById function', () => {
     await addNewDuty(testDuty);
     const dutyInserted = await lookForAllDuties({ name: testDuty.name });
     const dutyInsertedId = dutyInserted[0]._id;
-    const result = await deleteDutyById({ _id: ObjectId(dutyInsertedId) });
+    const result = await deleteDutyById(dutyInsertedId);
     expect(result.deletedCount).toBe(1);
   });
 
@@ -100,7 +73,7 @@ describe('deleteDutyById function', () => {
     await addNewDuty(testDuty);
     const dutyInserted = await lookForAllDuties({ name: testDuty.name });
     const dutyInsertedId = dutyInserted[0]._id;
-    await deleteDutyById({ _id: ObjectId(dutyInsertedId) });
+    await deleteDutyById(dutyInsertedId);
     const result = await lookForAllDuties({ _id: ObjectId(dutyInsertedId) });
     expect(result.length).toBe(0);
   });
@@ -114,7 +87,7 @@ describe('updateDuty function', () => {
   it('checks that when a duty is edited edited field changes', async () => {
     await addNewDuty(testDuty);
     const dutyInserted = await lookForAllDuties({ name: testDuty.name });
-    const dutyInsertedId = { _id: dutyInserted[0]._id };
+    const dutyInsertedId = dutyInserted[0]._id;
     const result = await updateDuty(dutyInsertedId, updatesToDo);
     const changeRes = await lookForAllDuties(dutyInsertedId);
     expect(result.modifiedCount).toBe(1);

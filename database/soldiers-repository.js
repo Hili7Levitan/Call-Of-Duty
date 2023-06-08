@@ -9,8 +9,8 @@ async function addNewSoldier(newSoldier) {
     rank: newSoldier.rank,
     name: newSoldier.name,
     limitations: newSoldier.limitations,
+    duties: [],
   };
-  soldierToInsert.duties = [];
   const result = await client.db(dbName).collection(soldiersDBCollection)
     .insertOne(soldierToInsert);
   return result;
@@ -19,7 +19,7 @@ async function addNewSoldier(newSoldier) {
 async function lookForSoldier(specificSoldier) {
   if (specificSoldier.id) {
     const { id, ...obj } = specificSoldier;
-    const newSpecificSoldier = { _id: id, ...obj };
+    const newSpecificSoldier = { _id: String(id), ...obj };
     const result = await client.db(dbName).collection(soldiersDBCollection)
       .findOne(newSpecificSoldier);
     return result;
@@ -32,7 +32,7 @@ async function lookForSoldier(specificSoldier) {
 async function lookForAllSoldiers(specifiedSoldiers) {
   if (specifiedSoldiers.id) {
     const { id, ...obj } = specifiedSoldiers;
-    const newSpecifiedSoldier = { _id: id, ...obj };
+    const newSpecifiedSoldier = { _id: String(id), ...obj };
     const result = await client.db(dbName).collection(soldiersDBCollection)
       .find(newSpecifiedSoldier).toArray();
     return result;

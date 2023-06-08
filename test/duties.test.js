@@ -7,7 +7,7 @@ import { client } from '../connections.js';
 import app from '../app.js';
 import {
   dbName, dutiesDBCollection, addNewDuty, updateDuty, lookForAllDuties,
-} from '../database/duties_repository.js';
+} from '../database/duties-repository.js';
 
 beforeAll(async () => {
   await client.connect();
@@ -103,7 +103,7 @@ describe('Delete duty by id route', () => {
     await addNewDuty(testDuty);
     const dutyInserted = await lookForAllDuties({ name: testDuty.name });
     const dutyInsertedId = dutyInserted[0]._id;
-    await updateDuty({ _id: (dutyInsertedId) }, { soldiers: [9033544] });
+    await updateDuty(dutyInsertedId, { soldiers: [9033544] });
     const res = await app.inject({
       method: 'DELETE',
       url: `/duties/${dutyInsertedId}`,
@@ -146,7 +146,7 @@ describe('Patch duty route', () => {
     await addNewDuty(testDuty);
     const dutyInserted = await lookForAllDuties({ name: testDuty.name });
     const dutyInsertedId = dutyInserted[0]._id;
-    await updateDuty({ _id: (dutyInsertedId) }, { soldiers: [9033544] });
+    await updateDuty(dutyInsertedId, { soldiers: [9033544] });
     const res = await app.inject({
       method: 'PATCH',
       url: `/duties/${dutyInsertedId}`,

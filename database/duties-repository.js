@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { client } from '../connections.js';
 
 export const dbName = 'CallOfDuty';
@@ -11,11 +12,11 @@ async function addNewDuty(newDuty) {
     constraints: newDuty.constraints,
     soldiersRequired: newDuty.soldiersRequired,
     value: newDuty.value,
+    soldiers: [],
   };
-  dutyToInsert.soldiers = [];
-  const dutyInserted = await client.db(dbName).collection(dutiesDBCollection)
+  const result = await client.db(dbName).collection(dutiesDBCollection)
     .insertOne(dutyToInsert);
-  return dutyInserted;
+  return result;
 }
 
 async function lookForAllDuties(specifiedDuty) {
@@ -26,19 +27,19 @@ async function lookForAllDuties(specifiedDuty) {
 
 async function lookForDutyById(specificDuty) {
   const result = await client.db(dbName).collection(dutiesDBCollection)
-    .findOne(specificDuty);
+    .findOne({ _id: ObjectId(specificDuty) });
   return result;
 }
 
 async function deleteDutyById(specificDuty) {
   const result = await client.db(dbName).collection(dutiesDBCollection)
-    .deleteOne(specificDuty);
+    .deleteOne({ _id: ObjectId(specificDuty) });
   return result;
 }
 
 async function updateDuty(specificDuty, fieldsToUpdate) {
   const result = await client.db(dbName).collection(dutiesDBCollection)
-    .updateOne(specificDuty, { $set: fieldsToUpdate });
+    .updateOne({ _id: ObjectId(specificDuty) }, { $set: fieldsToUpdate });
   return result;
 }
 

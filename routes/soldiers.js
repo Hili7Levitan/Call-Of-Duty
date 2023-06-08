@@ -1,4 +1,4 @@
-import { addNewSoldier, lookForSoldier, lookForAllSoldiers } from '../database/soldiers_repository.js';
+import { addNewSoldier, lookForSoldier, lookForAllSoldiers } from '../database/soldiers-repository.js';
 
 const soldierProperties = {
   id: { type: 'string' },
@@ -23,7 +23,7 @@ export default async function soldiersRouter(app) {
     const soldier = req.body;
     try {
       const insertionRes = await addNewSoldier(soldier);
-      const soldierInserted = await lookForSoldier({ _id: insertionRes.insertedId });
+      const soldierInserted = await lookForSoldier(insertionRes.insertedId);
       res.status(201).send(soldierInserted);
     } catch (error) {
       if (error.code === 11000) {
@@ -38,7 +38,7 @@ export default async function soldiersRouter(app) {
   app.get('/:id', async (req, res) => {
     try {
       const soldierId = req.params.id;
-      const searchResponse = await lookForSoldier({ id: String(soldierId) });
+      const searchResponse = await lookForSoldier({ _id: soldierId });
       if (searchResponse) {
         res.status(200).send(searchResponse);
       } else if (searchResponse === null) {
