@@ -1,7 +1,6 @@
-import { ObjectId } from 'mongodb';
 import {
   addNewDuty, lookForAllDuties, lookForDutyById, deleteDutyById, updateDuty,
-} from '../database/duties_repository.js';
+} from '../database/duties-repository.js';
 
 const dutyProperties = {
   name: { type: 'string' },
@@ -17,6 +16,7 @@ const dutyProperties = {
   soldiersRequired: { type: 'number' },
   value: { type: 'number' },
 };
+
 const newDutySchema = {
   schema: {
     body: {
@@ -26,7 +26,6 @@ const newDutySchema = {
       properties: dutyProperties,
     },
   },
-
 };
 
 const getDutySchema = {
@@ -36,7 +35,6 @@ const getDutySchema = {
       properties: dutyProperties,
     },
   },
-
 };
 
 const dutyEditSchema = {
@@ -52,14 +50,13 @@ const dutyEditSchema = {
       properties: dutyProperties,
     },
   },
-
 };
 
 export default async function dutyRouter(app) {
   app.post('/', newDutySchema, async (req, res) => {
     const dutyInserted = req.body;
     const dutyCreated = await addNewDuty(dutyInserted);
-    const fullDutyCreated = await lookForAllDuties({ _id: dutyCreated.insertedId });
+    const fullDutyCreated = await lookForDutyById(dutyCreated.insertedId);
     res.status(201).send(fullDutyCreated);
   });
 
@@ -71,9 +68,7 @@ export default async function dutyRouter(app) {
 
   app.get('/:id', async (req, res) => {
     const dutyId = req.params.id;
-    const searchResponse = await lookForDutyById(
-      { _id: ObjectId(dutyId) },
-    );
+    const searchResponse = await lookForDutyById(dutyId);
     if (searchResponse) {
       res.status(200).send({ message: 'duty found' });
     } else {
@@ -83,35 +78,29 @@ export default async function dutyRouter(app) {
 
   app.delete('/:id', async (req, res) => {
     const idForDelete = req.params.id;
-    const searchResponse = await lookForDutyById(
-      { _id: ObjectId(idForDelete) },
-    );
+    const searchResponse = await lookForDutyById(idForDelete);
     if (!searchResponse) {
       return res.status(400).send({ message: 'duty doesnt exist' });
     }
     if (searchResponse.soldiers.length !== 0) {
       return res.status(400).send({ message: 'scheduled duties cannot be deleted' });
     }
-    await deleteDutyById(
-      { _id: ObjectId(idForDelete) },
-    );
+    await deleteDutyById(idForDelete);
     return res.status(200).send({ message: 'duty deleted' });
   });
 
   app.patch('/:id', dutyEditSchema, async (req, res) => {
     const dutyToUpdate = req.params.id;
     const updatesToDo = req.body;
-    const updatedDuty = await lookForDutyById({ _id: ObjectId(dutyToUpdate) });
+    const updatedDuty = await lookForDutyById(dutyToUpdate);
     if (!updatedDuty) {
       res.status(400).send({ message: 'duty doesnt exist!' });
     }
     if (updatedDuty.soldiers.length !== 0) {
       res.status(400).send({ message: 'scheduled duties cannot be changed!' });
     } else {
-      const updateResult = await updateDuty(
-        { _id: ObjectId(dutyToUpdate) },
-        updatesToDo,
-      ); if (updateResult.modifiedCount === 1) {
+      const updateResult = await updateDuty(dutyToUpdate, updatesToDo);
+      if (updateResult.modifiedCount === 1) {
         res.status(200).send({ message: 'duty updated' });
       } else {
         res.status(400).send({ message: 'not updated' });

@@ -4,7 +4,7 @@ import {
 } from 'vitest';
 import { client } from '../connections.js';
 import app from '../app.js';
-import * as database from '../database/soldiers_repository.js';
+import * as database from '../database/soldiers-repository.js';
 
 const { dbName, soldiersDBCollection, addNewSoldier } = database;
 
