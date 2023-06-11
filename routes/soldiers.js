@@ -1,4 +1,11 @@
-import { addNewSoldier, lookForSoldier, lookForAllSoldiers } from '../database.js';
+import { addNewSoldier, lookForSoldier, lookForAllSoldiers } from '../database/soldiers-repository.js';
+
+const soldierProperties = {
+  id: { type: 'string' },
+  name: { type: 'string' },
+  rank: { type: 'string' },
+  limitations: { type: 'array' },
+};
 
 const newSoldierSchema = {
   schema: {
@@ -6,12 +13,7 @@ const newSoldierSchema = {
       type: 'object',
       additionalProperties: false,
       required: ['id', 'name', 'rank', 'limitations'],
-      properties: {
-        id: { type: 'string' },
-        name: { type: 'string' },
-        rank: { type: 'string' },
-        limitations: { type: 'array' },
-      },
+      properties: soldierProperties,
     },
   },
 };
@@ -21,7 +23,11 @@ export default async function soldiersRouter(app) {
     const soldier = req.body;
     try {
       const insertionRes = await addNewSoldier(soldier);
+<<<<<<< Updated upstream
       const soldierInserted = await lookForSoldier({ _id: insertionRes.insertedId });
+=======
+      const soldierInserted = await lookForSoldier({ id: insertionRes.insertedId });
+>>>>>>> Stashed changes
       res.status(201).send(soldierInserted);
     } catch (error) {
       if (error.code === 11000) {
@@ -36,7 +42,7 @@ export default async function soldiersRouter(app) {
   app.get('/:id', async (req, res) => {
     try {
       const soldierId = req.params.id;
-      const searchResponse = await lookForSoldier({ id: String(soldierId) });
+      const searchResponse = await lookForSoldier({ _id: soldierId });
       if (searchResponse) {
         res.status(200).send(searchResponse);
       } else if (searchResponse === null) {
