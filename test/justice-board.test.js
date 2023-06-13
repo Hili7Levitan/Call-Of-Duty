@@ -48,7 +48,7 @@ const testDuty = {
     end: 20230402,
   },
   constraints: ['bla', 'bla'],
-  soldiersRequired: 9033543,
+  soldiersRequired: 1,
   value: 8,
 };
 
@@ -60,8 +60,8 @@ const testSoldier = {
 };
 
 describe('checks Get/Justice-board endpoint', () => {
-  it.only('makes sure that route returns an array of objects', async () => {
-    addNewSoldier(testSoldier);
+  it('makes sure that route returns an array of objects', async () => {
+    await addNewSoldier(testSoldier);
     createScheduledDutyForTest(testSoldier, testDuty);
     const res = await app.inject({
       method: 'GET',

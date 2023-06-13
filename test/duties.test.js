@@ -8,7 +8,7 @@ import app from '../app.js';
 import {
   dutiesDBCollection, addNewDuty, updateDuty, lookForAllDuties,
 } from '../database/duties-repository.js';
-import { dbName } from '../database/soldiers-repository.js';
+import { dbName, addNewSoldier, soldiersDBCollection } from '../database/soldiers-repository.js';
 
 beforeAll(async () => {
   await client.connect();
@@ -21,6 +21,9 @@ afterAll(async () => {
 beforeEach(async () => {
   await client.db(dbName).collection(dutiesDBCollection).deleteMany({});
 });
+beforeEach(async () => {
+  await client.db(dbName).collection(soldiersDBCollection).deleteMany({});
+});
 
 const testDuty = {
   name: 'HilisDuty',
@@ -32,6 +35,13 @@ const testDuty = {
   constraints: ['bla', 'bla'],
   soldiersRequired: 2,
   value: 8,
+};
+
+const testSoldier = {
+  id: 3251084213556,
+  name: 'Shira',
+  rank: 0,
+  limitations: ['none', 'none'],
 };
 
 describe('Post duties route', () => {
@@ -178,5 +188,18 @@ describe('Get duty endpoint', () => {
     const dutyInsertedId = dutyInserted[0]._id;
     expect(res.body).toContain(dutyInsertedId);
     expect(res.body).toContain(testDuty.name);
+  });
+});
+
+describe('checks duty schedule endpoint', () => {
+  it('makes sure that route returns scheduled duty', async () => {
+    await addNewSoldier(testSoldier);
+    const dutyForSchedule = await addNewDuty(testDuty);
+    const res = await app.inject({
+      method: 'PUT',
+      url: `/duties/${dutyForSchedule.insertedId}/schedule`,
+    });
+    expect(res.json().soldiers.length).toBe(1);
+    expect(res.json().soldiers[0]._id).toEqual(testSoldier.id);
   });
 });

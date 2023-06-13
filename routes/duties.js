@@ -2,6 +2,8 @@ import {
   addNewDuty, lookForAllDuties, lookForDutyById, deleteDutyById, updateDuty,
 } from '../database/duties-repository.js';
 
+import { scheduleDuty } from '../database/justice-board-repository.js';
+
 const dutyProperties = {
   name: { type: 'string' },
   location: { type: 'string' },
@@ -110,8 +112,7 @@ export default async function dutyRouter(app) {
 
   app.put('/:id/schedule', async (req, res) => {
     const dutyToSchedule = req.params.id;
-    const scheduleResult = scheduleDuty(dutyToSchedule);
+    const scheduleResult = await scheduleDuty(dutyToSchedule);
     res.send(scheduleResult);
   });
-  done();
 }

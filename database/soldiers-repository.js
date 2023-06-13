@@ -42,6 +42,15 @@ async function lookForAllSoldiers(specifiedSoldiers) {
   return result;
 }
 
+async function updateScheduledSoldier(specificSoldier, newRank, newDuty) {
+  const result = await client.db(dbName).collection(soldiersDBCollection)
+    .updateOne(
+      { _id: specificSoldier },
+      { $inc: { rank: newRank }, $push: { duties: newDuty } },
+    );
+  return result;
+}
+
 export {
-  addNewSoldier, lookForSoldier, lookForAllSoldiers,
+  addNewSoldier, lookForSoldier, lookForAllSoldiers, updateScheduledSoldier,
 };
