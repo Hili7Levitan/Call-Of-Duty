@@ -3,7 +3,7 @@ import { client } from '../connections.js';
 export const dbName = 'CallOfDuty';
 export const soldiersDBCollection = 'Soldiers';
 
-async function addNewSoldier(newSoldier) {
+export async function addNewSoldier(newSoldier) {
   const soldierToInsert = {
     _id: newSoldier.id,
     rank: newSoldier.rank,
@@ -16,7 +16,7 @@ async function addNewSoldier(newSoldier) {
   return result;
 }
 
-async function lookForSoldier(specificSoldier) {
+export async function lookForSoldier(specificSoldier) {
   if (specificSoldier.id) {
     const { id, ...obj } = specificSoldier;
     const newSpecificSoldier = { _id: String(id), ...obj };
@@ -29,7 +29,7 @@ async function lookForSoldier(specificSoldier) {
   return result;
 }
 
-async function lookForAllSoldiers(specifiedSoldiers) {
+export async function lookForAllSoldiers(specifiedSoldiers) {
   if (specifiedSoldiers.id) {
     const { id, ...obj } = specifiedSoldiers;
     const newSpecifiedSoldier = { _id: String(id), ...obj };
@@ -41,7 +41,3 @@ async function lookForAllSoldiers(specifiedSoldiers) {
     .find(specifiedSoldiers).toArray();
   return result;
 }
-
-export {
-  addNewSoldier, lookForSoldier, lookForAllSoldiers,
-};

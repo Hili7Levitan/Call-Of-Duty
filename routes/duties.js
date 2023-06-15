@@ -57,23 +57,22 @@ export default async function dutyRouter(app) {
     const dutyInserted = req.body;
     const dutyCreated = await addNewDuty(dutyInserted);
     const fullDutyCreated = await lookForDutyById(dutyCreated.insertedId);
-    res.status(201).send(fullDutyCreated);
+    return res.status(201).send(fullDutyCreated);
   });
 
   app.get('/', getDutySchema, async (req, res) => {
     const dutiesQuery = req.query;
     const searchResult = await lookForAllDuties(dutiesQuery);
-    res.send(searchResult);
+    return res.send(searchResult);
   });
 
   app.get('/:id', async (req, res) => {
     const dutyId = req.params.id;
     const searchResponse = await lookForDutyById(dutyId);
     if (searchResponse) {
-      res.status(200).send({ message: 'duty found' });
-    } else {
-      res.status(400).send({ message: 'duty not found' });
+      return res.status(200).send({ message: 'duty found' });
     }
+    return res.status(400).send({ message: 'duty not found' });
   });
 
   app.delete('/:id', async (req, res) => {
@@ -94,17 +93,15 @@ export default async function dutyRouter(app) {
     const updatesToDo = req.body;
     const updatedDuty = await lookForDutyById(dutyToUpdate);
     if (!updatedDuty) {
-      res.status(400).send({ message: 'duty doesnt exist!' });
+      return res.status(400).send({ message: 'duty doesnt exist!' });
     }
     if (updatedDuty.soldiers.length !== 0) {
-      res.status(400).send({ message: 'scheduled duties cannot be changed!' });
-    } else {
-      const updateResult = await updateDuty(dutyToUpdate, updatesToDo);
-      if (updateResult.modifiedCount === 1) {
-        res.status(200).send({ message: 'duty updated' });
-      } else {
-        res.status(400).send({ message: 'not updated' });
-      }
+      return res.status(400).send({ message: 'scheduled duties cannot be changed!' });
     }
+    const updateResult = await updateDuty(dutyToUpdate, updatesToDo);
+    if (updateResult.modifiedCount === 1) {
+      return res.status(200).send({ message: 'duty updated' });
+    }
+    return res.status(400).send({ message: 'not updated' });
   });
 }

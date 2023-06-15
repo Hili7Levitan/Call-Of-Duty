@@ -24,14 +24,12 @@ export default async function soldiersRouter(app) {
     try {
       const insertionRes = await addNewSoldier(soldier);
       const soldierInserted = await lookForSoldier(insertionRes.insertedId);
-      res.status(201).send(soldierInserted);
+      return res.status(201).send(soldierInserted);
     } catch (error) {
       if (error.code === 11000) {
-        res.status(400).send({ message: 'soldier not created - this id already exists!' });
-      } else {
-        res.status(500).send({ message: 'server error' });
-        app.log.error(error);
+        return res.status(400).send({ message: 'soldier not created - this id already exists!' });
       }
+      return res.status(500).send({ message: 'server error' });
     }
   });
 
@@ -40,19 +38,18 @@ export default async function soldiersRouter(app) {
       const soldierId = req.params.id;
       const searchResponse = await lookForSoldier({ _id: soldierId });
       if (searchResponse) {
-        res.status(200).send(searchResponse);
-      } else if (searchResponse === null) {
-        res.status(404).send({ message: 'soldier not found' });
+        return res.status(200).send(searchResponse);
       }
+      return res.status(404).send({ message: 'soldier not found' });
     } catch (error) {
-      res.status(500).send({ message: 'server error' });
       app.log.error(error);
+      return res.status(500).send({ message: 'server error' });
     }
   });
 
   app.get('/', async (req, res) => {
     const soldierQuery = req.query;
     const searchResponses = await lookForAllSoldiers(soldierQuery);
-    res.send(searchResponses);
+    return res.send(searchResponses);
   });
 }

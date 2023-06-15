@@ -25,6 +25,7 @@ const testSoldier = {
   rank: '3',
   limitations: ['none', 'none'],
 };
+
 describe('addNewSoldier function', () => {
   it('Should insert soldier', async () => {
     const res = await addNewSoldier(testSoldier);

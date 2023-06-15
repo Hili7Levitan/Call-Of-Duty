@@ -52,9 +52,8 @@ describe('lookForAllDuties function', () => {
 
 describe('lookForDutyById function', () => {
   it('checks that when searching by id returns a single object', async () => {
-    await addNewDuty(testDuty);
-    const dutyInserted = await lookForAllDuties({ name: testDuty.name });
-    const dutyInsertedId = dutyInserted[0]._id;
+    const dutyInserted = await addNewDuty(testDuty);
+    const dutyInsertedId = dutyInserted.insertedId;
     const result = await lookForDutyById(dutyInsertedId);
     expect(result._id).toEqual(dutyInsertedId);
   });
@@ -79,12 +78,12 @@ describe('deleteDutyById function', () => {
   });
 });
 
-const updatesToDo = {
-  name: 'NotHilisDuty',
-};
-
 describe('updateDuty function', () => {
-  it('checks that when a duty is edited edited field changes', async () => {
+  const updatesToDo = {
+    name: 'NotHilisDuty',
+  };
+
+  it('checks that when a duty is edited field changes', async () => {
     await addNewDuty(testDuty);
     const dutyInserted = await lookForAllDuties({ name: testDuty.name });
     const dutyInsertedId = dutyInserted[0]._id;
