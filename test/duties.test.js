@@ -92,6 +92,7 @@ describe('Delete duty by id route', () => {
     });
     expect(res.statusCode).toBe(200);
   });
+
   it('checks that when a duty doesnt exist status is 400', async () => {
     const res = await app.inject({
       method: 'DELETE',
@@ -99,6 +100,7 @@ describe('Delete duty by id route', () => {
     });
     expect(res.statusCode).toBe(400);
   });
+
   it('checks that when a duty is already scheduled status is 400', async () => {
     await addNewDuty(testDuty);
     const dutyInserted = await lookForAllDuties({ name: testDuty.name });
@@ -130,6 +132,7 @@ describe('Patch duty route', () => {
     expect(res.statusCode).toBe(200);
     expect(res.json()).toEqual({ message: 'duty updated' });
   });
+
   it('checks that when a duty is not updated status is 400', async () => {
     await addNewDuty(testDuty);
     const dutyInserted = await lookForAllDuties({ name: testDuty.name });
@@ -142,6 +145,7 @@ describe('Patch duty route', () => {
     expect(res.statusCode).toBe(400);
     expect(res.json()).toEqual({ message: 'not updated' });
   });
+
   it('checks that when a duty is already scheduled status is 400', async () => {
     await addNewDuty(testDuty);
     const dutyInserted = await lookForAllDuties({ name: testDuty.name });
@@ -155,6 +159,7 @@ describe('Patch duty route', () => {
     expect(res.statusCode).toBe(400);
     expect(res.json()).toEqual({ message: 'scheduled duties cannot be changed!' });
   });
+
   it('checks that when a duty desnt exist status is 400', async () => {
     const res = await app.inject({
       method: 'PATCH',

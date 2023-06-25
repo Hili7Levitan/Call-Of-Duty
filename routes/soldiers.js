@@ -22,9 +22,8 @@ export default async function soldiersRouter(app) {
   app.post('/', newSoldierSchema, async (req, res) => {
     const soldier = req.body;
     try {
-      const insertionRes = await addNewSoldier(soldier);
-      const soldierInserted = await lookForSoldier(insertionRes.insertedId);
-      return res.status(201).send(soldierInserted);
+      const insertedSoldier = await addNewSoldier(soldier);
+      return res.status(201).send(insertedSoldier);
     } catch (error) {
       if (error.code === 11000) {
         return res.status(400).send({ message: 'soldier not created - this id already exists!' });

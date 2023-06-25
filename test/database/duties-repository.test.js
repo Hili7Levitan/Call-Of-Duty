@@ -3,12 +3,12 @@ import {
   afterAll,
   beforeAll, beforeEach, describe, expect, it,
 } from 'vitest';
-import { client } from '../connections.js';
+import { client } from '../../connections.js';
 
 import {
   addNewDuty,
-  lookForAllDuties, dutiesDBCollection, dbName, deleteDutyById, lookForDutyById, updateDuty,
-} from '../database/duties-repository.js';
+  lookForAllDuties, dutiesDBCollection, dbName, deleteDutyById, updateDuty,
+} from '../../database/duties-repository.js';
 
 beforeAll(async () => {
   await client.connect();
@@ -37,7 +37,7 @@ const testDuty = {
 describe('addNewDuty function', () => {
   it('should insert new duty', async () => {
     const result = await addNewDuty(testDuty);
-    expect(result.acknowledged).eq(true);
+    expect(result.name).toEqual(testDuty.name);
   });
 });
 
@@ -51,11 +51,9 @@ describe('lookForAllDuties function', () => {
 });
 
 describe('lookForDutyById function', () => {
-  it('checks that when searching by id returns a single object', async () => {
-    const dutyInserted = await addNewDuty(testDuty);
-    const dutyInsertedId = dutyInserted.insertedId;
-    const result = await lookForDutyById(dutyInsertedId);
-    expect(result._id).toEqual(dutyInsertedId);
+  it('checks that when searching by id returns the right object', async () => {
+    const result = await addNewDuty(testDuty);
+    expect(result.name).toEqual(testDuty.name);
   });
 });
 

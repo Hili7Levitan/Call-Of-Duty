@@ -6,7 +6,8 @@ import healthRouter from './routes/health.js';
 const logOptions = {
   level: process.env.logLevel || 'info',
 };
-export const app = Fastify({
+
+const app = Fastify({
   logger: logOptions,
 });
 

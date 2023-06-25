@@ -11,9 +11,10 @@ export async function addNewSoldier(newSoldier) {
     limitations: newSoldier.limitations,
     duties: [],
   };
-  const result = await client.db(dbName).collection(soldiersDBCollection)
+
+  await client.db(dbName).collection(soldiersDBCollection)
     .insertOne(soldierToInsert);
-  return result;
+  return soldierToInsert;
 }
 
 export async function lookForSoldier(specificSoldier) {

@@ -56,8 +56,7 @@ export default async function dutyRouter(app) {
   app.post('/', newDutySchema, async (req, res) => {
     const dutyInserted = req.body;
     const dutyCreated = await addNewDuty(dutyInserted);
-    const fullDutyCreated = await lookForDutyById(dutyCreated.insertedId);
-    return res.status(201).send(fullDutyCreated);
+    return res.status(201).send(dutyCreated);
   });
 
   app.get('/', getDutySchema, async (req, res) => {

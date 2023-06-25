@@ -14,9 +14,12 @@ export async function addNewDuty(newDuty) {
     value: newDuty.value,
     soldiers: [],
   };
+
   const result = await client.db(dbName).collection(dutiesDBCollection)
     .insertOne(dutyToInsert);
-  return result;
+  const { _id, ...obj } = dutyToInsert;
+  const dullInsertedDuty = { _id: result.insertedId, ...obj };
+  return dullInsertedDuty;
 }
 
 export async function lookForAllDuties(specifiedDuty) {
