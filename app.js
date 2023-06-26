@@ -13,6 +13,22 @@ const logOptions = {
 const app = Fastify({
   logger: logOptions,
 });
+function validate(req, res, done) {
+  const encodedAuthorization = req.headers.authorization;
+  const relevantEncodedAuthorization = encodedAuthorization.split(' ');
+  const decodedAuthorization = Buffer.from(relevantEncodedAuthorization[1], 'base64').toString('ascii');
+  const userCredentials = decodedAuthorization.split(':');
+
+  if (userCredentials[0] !== 'Hili' || userCredentials[1] !== 'Levitan') {
+    throw new Error('Oops! wrong username or password');
+  }
+  done();
+}
+app.addHook('onRequest', validate);
+app.register(soldierRouter, { prefix: '/soldiers' });
+app.register(dutyRouter, { prefix: '/duties' });
+app.register(healthRouter, { prefix: '/health' });
+app.register(justiceBoardRouter, { prefix: '/justice-board' });
 
 app.register(fastifyHelmet);
 app.register(swagger, {
@@ -31,10 +47,6 @@ app.register(swagger, {
 });
 
 app.register(swaggerUI, { prefix: '/api-docs' });
-app.register(soldierRouter, { prefix: '/soldiers' });
-app.register(dutyRouter, { prefix: '/duties' });
-app.register(healthRouter, { prefix: '/health' });
-app.register(justiceBoardRouter, { prefix: '/justice-board' });
 
 await app.ready();
 app.swagger();
