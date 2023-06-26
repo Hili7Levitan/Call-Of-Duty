@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import fastifyHelmet from '@fastify/helmet';
 import swaggerUI from '@fastify/swagger-ui';
 import swagger from '@fastify/swagger';
+import rateLimit from '@fastify/rate-limit';
 import soldierRouter from './routes/soldiers.js';
 import dutyRouter from './routes/duties.js';
 import healthRouter from './routes/health.js';
@@ -25,11 +26,10 @@ function validate(req, res, done) {
   done();
 }
 app.addHook('onRequest', validate);
-app.register(soldierRouter, { prefix: '/soldiers' });
-app.register(dutyRouter, { prefix: '/duties' });
-app.register(healthRouter, { prefix: '/health' });
-app.register(justiceBoardRouter, { prefix: '/justice-board' });
-
+app.register(rateLimit, {
+  max: 1,
+  timeWindow: '1 minute',
+});
 app.register(fastifyHelmet);
 app.register(swagger, {
   swagger: {
@@ -47,7 +47,10 @@ app.register(swagger, {
 });
 
 app.register(swaggerUI, { prefix: '/api-docs' });
-
+app.register(soldierRouter, { prefix: '/soldiers' });
+app.register(dutyRouter, { prefix: '/duties' });
+app.register(healthRouter, { prefix: '/health' });
+app.register(justiceBoardRouter, { prefix: '/justice-board' });
 await app.ready();
 app.swagger();
 
