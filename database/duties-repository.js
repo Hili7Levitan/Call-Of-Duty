@@ -17,9 +17,9 @@ export async function addNewDuty(newDuty) {
 
   const result = await client.db(dbName).collection(dutiesDBCollection)
     .insertOne(dutyToInsert);
-  const { _id, ...obj } = dutyToInsert;
-  const dullInsertedDuty = { _id: result.insertedId, ...obj };
-  return dullInsertedDuty;
+  const { ...obj } = dutyToInsert;
+  const fullInsertedDuty = { _id: result.insertedId, ...obj };
+  return fullInsertedDuty;
 }
 
 export async function lookForAllDuties(specifiedDuty) {
